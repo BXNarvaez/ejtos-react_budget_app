@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
 
 const AllocationForm = (props) => {
-    const { dispatch, remaining } = useContext(AppContext);
+    const { dispatch, remaining, currency } = useContext(AppContext);
 
     const [name, setName] = useState('');
-    const [cost, setCost] = useState('');
+    const [cost, setCost] = useState('0');
     const [action, setAction] = useState('');
 
     const submitEvent = () => {
@@ -25,12 +25,16 @@ const AllocationForm = (props) => {
                 type: 'RED_EXPENSE',
                 payload: expense,
             });
-        } else {
+        } else if (action === "Add") {
             dispatch({
                 type: 'ADD_EXPENSE',
                 payload: expense,
             });
-        };
+        } else {
+            dispatch({
+
+            })
+        }
     };
 
     return (
@@ -58,15 +62,18 @@ const AllocationForm = (props) => {
                         <option defaultValue value="Add" name="Add">Add</option>
                         <option value="Reduce" name="Reduce">Reduce</option>
                     </select>
-
-                    <input
-                        required='required'
-                        type='number'
-                        id='cost'
-                        value={cost}
-                        style={{ marginLeft: '2rem' , size: 10}}
-                        onChange={(event) => setCost(event.target.value)}>
-                    </input>
+                    
+                    <span style={{marginLeft: '2rem'}}>{currency}
+                        <input
+                            required='required'
+                            type='number'
+                            id='cost'
+                            min={0}
+                            value={cost}
+                            style={{ size: 10}}
+                            onChange={(event) => setCost(event.target.value)}>
+                        </input>
+                    </span>
 
                     <button className='btn btn-primary' onClick={submitEvent} style={{ marginLeft: '2rem'}}>
                         Save

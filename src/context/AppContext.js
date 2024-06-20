@@ -9,7 +9,7 @@ export const AppReducer = (state, action) => {
             total_budget = state.expenses.reduce(
                 (previousExp, currentExp) => {
                     return previousExp + currentExp.cost
-                },0
+                }, 0
             );
             total_budget = total_budget + action.payload.cost;
             action.type = "DONE";
@@ -57,16 +57,30 @@ export const AppReducer = (state, action) => {
                 ...state,
                 budget
             };
+
         case 'SET_BUDGET':
             action.type = "DONE";
-            state.budget = action.payload;
+            if (action.adjustment < state.expenses.reduce((total, item) => total += item.cost, 0)) {
+                alert("Budget cannot fail behind the total allocated expenses!");
+                return {
+                    ...state,
+                }
+            } else if (action.adjustment > 20000) {
+                alert("Budget cannot exceed 20,000!");
+                return {
+                    ...state,
+                };
+            } else {
+                state.budget = action.adjustment;
+                return {
+                    ...state,
+                };
+            }
 
-            return {
-                ...state,
-            };
         case 'CHG_CURRENCY':
             action.type = "DONE";
-            state.currency = action.payload;
+            state.currency = action.symbol;
+            console.log(state.currency);
             return {
                 ...state
             }
@@ -78,7 +92,7 @@ export const AppReducer = (state, action) => {
 
 // 1. Sets the initial state when the app loads
 const initialState = {
-    budget: 2000,
+    budget: 1000,
     expenses: [
         { id: "Marketing", name: 'Marketing', cost: 50 },
         { id: "Finance", name: 'Finance', cost: 300 },
@@ -98,9 +112,10 @@ export const AppProvider = (props) => {
     // 4. Sets up the app state. takes a reducer, and an initial state
     const [state, dispatch] = useReducer(AppReducer, initialState);
     let remaining = 0;
+    let totalExpenses = 0;
 
     if (state.expenses) {
-            const totalExpenses = state.expenses.reduce((total, item) => {
+            totalExpenses = state.expenses.reduce((total, item) => {
             return (total = total + item.cost);
         }, 0);
         remaining = state.budget - totalExpenses;
